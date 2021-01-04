@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BeeChatNetwork.iml" filepath="$PROJECT_DIR$/BeeChatNetwork.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TempleNet.iml" filepath="$PROJECT_DIR$/TempleNet.iml" />
     </modules>
   </component>
 </project>
