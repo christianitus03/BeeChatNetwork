@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="TempleNet" />
+        <module name="TempleNetDesktop" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="TempleNet" target="11" />
+      <module name="TempleNetDesktop" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

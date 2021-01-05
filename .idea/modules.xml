@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TempleNet.iml" filepath="$PROJECT_DIR$/TempleNet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TempleNetDesktop/TempleNetDesktop.iml" filepath="$PROJECT_DIR$/TempleNetDesktop/TempleNetDesktop.iml" />
     </modules>
   </component>
 </project>
