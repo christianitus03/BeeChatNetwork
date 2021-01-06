@@ -17,7 +17,7 @@
 
 
 
-package org.templenet
+package templenet
 
 import com.digi.xbee.api.DigiMeshDevice
 import com.digi.xbee.api.DigiMeshNetwork
@@ -26,6 +26,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
 object Resources {
+
+    fun initialize(port: String, baud: Int = 230400) {
+        device = DigiMeshDevice(port, baud)
+        device.open()
+
+        network = device.network as DigiMeshNetwork
+    }
 
     init {
         Security.addProvider(BouncyCastleProvider())

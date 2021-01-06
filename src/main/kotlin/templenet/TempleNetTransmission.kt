@@ -17,7 +17,7 @@
 
 
 
-package org.templenet
+package templenet
 
 import com.digi.xbee.api.RemoteDigiMeshDevice
 import java.io.ByteArrayInputStream

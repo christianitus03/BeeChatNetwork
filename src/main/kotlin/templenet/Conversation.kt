@@ -17,7 +17,7 @@
 
 
 
-package org.templenet
+package templenet
 
 import com.digi.xbee.api.RemoteDigiMeshDevice
 import com.digi.xbee.api.listeners.IDataReceiveListener
@@ -27,7 +27,7 @@ import java.util.logging.Logger
 
 class Conversation(val device: RemoteDigiMeshDevice) { // TODO: 12/26/20 Document this 
 
-    val logger = Logger.getLogger("Conversation with $device")
+    val logger = Logger.getLogger("templenet.Conversation with $device")
 
     /*
     TODO
@@ -93,7 +93,7 @@ class Conversation(val device: RemoteDigiMeshDevice) { // TODO: 12/26/20 Documen
                     logger.info("Have encrypted data, preparing to send!")
                     TempleNetTransmission(2, encryptedData, device).send(); logger.info("Sending encrypted data...")
 
-                    logger.info("Done! Removing temporary listener...");//Resources.device.removeDataListener(this)
+                    logger.info("Done! Removing temporary listener...");//templenet.Resources.device.removeDataListener(this)
                 }
             }
         }); logger.info("Added temporary listener for text send action...")

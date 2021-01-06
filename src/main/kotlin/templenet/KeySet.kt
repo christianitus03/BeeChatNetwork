@@ -17,7 +17,7 @@
 
 
 
-package org.templenet
+package templenet
 
 import org.bouncycastle.jce.ECNamedCurveTable
 import java.security.GeneralSecurityException
