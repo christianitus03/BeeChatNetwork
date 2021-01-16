@@ -1,96 +1,64 @@
-/*
- * This file is part of TempleNet.
- *
- *     TempleNet is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     TempleNet is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with TempleNet.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-
-
 package templenet
 
+import com.digi.xbee.api.models.XBeeMessage
 import org.bouncycastle.jce.ECNamedCurveTable
-import java.security.GeneralSecurityException
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.lang.Exception
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.Security
 import java.security.spec.X509EncodedKeySpec
-import java.util.logging.Logger
 import javax.crypto.Cipher
 import javax.crypto.KeyAgreement
+import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import kotlin.random.Random
 
-class KeySet() { // TODO: 12/26/20 Write documentation for this! 
+class KeySet {
+    companion object {
+        init { Security.addProvider(BouncyCastleProvider()) }
 
-    val logger = Logger.getAnonymousLogger()
+        val CURVE = ECNamedCurveTable.getParameterSpec("c2pnb176w1")
 
-    val generator = KeyPairGenerator.getInstance("ECDH", "BC")
-    val agreement = KeyAgreement.getInstance("ECDH", "BC")
-    val keyPair: KeyPair
+        fun generateKeys(): KeyPair {
+            val generator = KeyPairGenerator.getInstance("ECDH", "BC")
+            generator.initialize(CURVE)
 
-    lateinit var sharedKey: SecretKeySpec
-    var cipher = Cipher.getInstance("AES", "BC")
+            return generator.generateKeyPair()
+        }
+    }
+
+    val agreement: KeyAgreement = KeyAgreement.getInstance("ECDH", "BC")
+    val keyPair: KeyPair = generateKeys()
+    val cipher: Cipher = Cipher.getInstance("AES", "BC")
     init {
-        logger.info("Initializing...")
-        generator.initialize(ECNamedCurveTable.getParameterSpec("c2pnb163v2")) // TODO: 12/28/20 Shitty EC, just a stopgap measure. Get a better curve 
-        keyPair = generator.generateKeyPair()
         agreement.init(keyPair.private)
     }
-    
-    fun createSecret(bytes: ByteArray) {
-        logger.info("Generating secret key...")
-        if (isValidKey(bytes)) {
-            logger.info("Key is valid!")
 
-            val factory = KeyFactory.getInstance("ECDH", "BC")
-            agreement.doPhase(factory.generatePublic(X509EncodedKeySpec(bytes)), true)
-            sharedKey = SecretKeySpec(agreement.generateSecret(), 0, 16, "ECDH")
+    fun update(message: XBeeMessage) {
+        val keyBytes = message.data.copyOfRange(1, 72)
+        val keySpec = X509EncodedKeySpec(keyBytes)
 
-
-        } else {
-            logger.warning("Key is invalid!")
-        }
+        val factory = KeyFactory.getInstance("ECDH", "BC")
+        agreement.doPhase(factory.generatePublic(keySpec), true)
     }
 
-    fun encryptData(bytes: ByteArray): ByteArray {
-        logger.info("Encrypting data...")
+    fun encryptData(unencrypted: ByteArray): ByteArray {
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, sharedKey)
-            return cipher.doFinal(bytes)
-        } catch (e: GeneralSecurityException) {
+            cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(agreement.generateSecret(), 0, 16, "AES"))
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-        return "ERROR".encodeToByteArray()
+        return cipher.doFinal(unencrypted)
     }
 
-    fun decryptData(bytes: ByteArray): ByteArray {
-        logger.info("Decrypting data...")
-        cipher.init(Cipher.DECRYPT_MODE, sharedKey)
-        return cipher.doFinal(bytes)
-    }
-
-    companion object {
-        fun isValidKey(bytes: ByteArray): Boolean {
-            return try {
-                val spec = X509EncodedKeySpec(bytes)
-                val factory = KeyFactory.getInstance("ECDH", "BC")
-                factory.generatePublic(spec)
-                true
-            } catch (e: GeneralSecurityException) {
-                println(e.message)
-                false
-            }
+    fun decryptData(encrypted: ByteArray): ByteArray {
+        try {
+            cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(agreement.generateSecret(), 0, 16, "AES"))
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        return cipher.doFinal(encrypted)
     }
-
 }
